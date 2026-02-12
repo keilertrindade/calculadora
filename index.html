@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RNPL Miracle 2026 Calculator</title>
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+            --border-color: #e5e7eb;
+            --success-bg: #dcfce7;
+            --success-text: #166534;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 900px; /* Limite para desktop */
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            background: var(--primary-color);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+        }
+
+        /* Layout Principal */
+        .calculator-body {
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            gap: 20px;
+        }
+
+        /* Coluna do Formulário */
+        .form-column {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Coluna de Resultados (A tal div lateral/oculta) */
+        .result-column {
+            flex: 1;
+            background-color: #f8fafc;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 20px;
+            display: none; /* Mobile: Oculto inicialmente */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        /* Estilização dos Inputs */
+        label {
+            font-weight: 500;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        select, input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        select:focus, input[type="number"]:focus {
+            border-color: var(--primary-color);
+        }
+
+        /* Checkbox Group */
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            padding: 10px 0;
+        }
+        
+        input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        /* Campo de valor de troca (escondido se checkbox não marcado) */
+        #tradeInField {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 6px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: var(--primary-hover);
+        }
+
+        /* Estilo do Resultado */
+        .result-title {
+            font-size: 1.1rem;
+            color: #64748b;
+            margin-bottom: 10px;
+        }
+        .final-price {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+        .details {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            color: #4b5563;
+            width: 100%;
+            text-align: left;
+            border-top: 1px solid var(--border-color);
+            padding-top: 15px;
+        }
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+
+        .btn-green {
+    display: block;          /* Faz ocupar a linha toda, igual ao botão */
+    width: 100%;             /* Largura total */
+    padding: 14px;           /* Mesma altura do outro botão */
+    background-color: #16a34a; /* Verde (Green-600) */
+    color: white;
+    text-align: center;
+    border-radius: 6px;
+    text-decoration: none;   /* Remove o sublinhado de link */
+    font-weight: 600;
+    font-size: 1rem;
+    margin-top: 10px;        /* Espaçamento do item de cima */
+    transition: background-color 0.2s;
+    border: none;
+    cursor: pointer;
+}
+
+.btn-green:hover {
+    background-color: #15803d; /* Verde mais escuro ao passar o mouse */
+}
+
+        /* --- BREAKPOINT PARA DESKTOP --- */
+        @media (min-width: 768px) {
+            .calculator-body {
+                flex-direction: row; /* Coloca lado a lado */
+            }
+
+            .result-column {
+                display: flex; /* Desktop: Sempre visível como placeholder ou com resultado */
+                opacity: 0.5; /* Opacidade baixa se não tiver resultado ainda */
+                justify-content: center;
+            }
+
+            .result-column.active {
+                opacity: 1;
+                background-color: var(--success-bg);
+                border-color: #86efac;
+            }
+            
+            /* Ajuste visual quando inativo no desktop */
+            .result-column:not(.active) .final-price,
+            .result-column:not(.active) .details {
+                display: none;
+            }
+            .result-column:not(.active)::after {
+                content: "Selecione as opções e clique em calcular para ver o resultado aqui.";
+                color: #94a3b8;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>RNPL Miracle 2026</h1>
+        </header>
+
+        <div class="calculator-body">
+            <div class="form-column">
+                
+                <div>
+                    <label for="modelSelect">Selecione o Modelo:</label>
+                    <select id="modelSelect">
+                        <option value="" disabled selected>Escolha uma opção...</option>
+                        <option value="m1">M1</option>
+                        <option value="m2">M2</option>
+                        <option value="m3_512">M3 512GB</option>
+                        <option value="m3_1tb">M3 1TB</option>
+                    </select>
+                </div>
+
+                <div class="checkbox-group" onclick="document.getElementById('tradeInCheck').click()">
+                    <input type="checkbox" id="tradeInCheck" onclick="event.stopPropagation()">
+                    <label for="tradeInCheck" style="margin:0; cursor:pointer;">Cliente deixará outro aparelho na troca</label>
+                </div>
+
+                <div id="tradeInField">
+                    <label for="oldValue">Valor do aparelho antigo (R$):</label>
+                    <input type="number" id="oldValue" placeholder="0,00" min="0">
+                </div>
+
+                <button onclick="calculate()">Calcular Valor Final</button>
+                <button onclick="descricaoValores()">Descrição dos Valores</button>
+                <a href="https://sav.wooza.com.br/samsung/modules-dashboard" target="_blank" class="btn-green">
+                    Acessar SAV
+                </a>
+
+            </div>
+
+            <div class="result-column" id="resultContainer">
+                <div class="result-title">Valor Final a Pagar</div>
+                <div class="final-price" id="displayPrice">R$ 0,00</div>
+                
+                <div class="details">
+                    <div class="detail-row">
+                        <span>Preço do Produto:</span>
+                        <span id="detailBase">R$ 0,00</span>
+                    </div>
+                    <div class="detail-row" id="detailTradeRow" style="color: #dc2626;">
+                        <span>Desconto (Troca):</span>
+                        <span id="detailTrade">- R$ 0,00</span>
+                    </div>
+                    <div class="detail-row" id="detailTradeRow" style="color: #5d26dc;">
+                        <span>Descrição valores:</span>
+                        <span id="detailTrade">- R$ 0,00</span>
+                    </div>
+                    
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // TABELA DE PREÇOS (Configure aqui os valores reais)
+        
+        const full_prices = {
+            'm1': 9099.00,
+            'm2': 10799.00,
+            'm3_512': 13099.00,
+            'm3_1tb': 15499.00
+        };
+        
+        const prices = {
+            'm1': 6699.00,
+            'm2': 8199.00,
+            'm3_512': 9999.00,
+            'm3_1tb': 11599.00
+        };
+
+        const tradein_bonus = {
+            'm1': 600.00,
+            'm2': 900.00,
+            'm3_512': 1200.00,
+            'm3_1tb': 1200.00
+        };
+
+        const memoria_bonus = {
+            'm1': 1600.00,
+            'm2': 1600.00,
+            'm3_512': 1600.00,
+            'm3_1tb': 2400.00
+        };     
+
+        const rnpl_bonus = {
+            'm1': 800.00,
+            'm2': 1000.00,
+            'm3_512': 1500.00,
+            'm3_1tb': 1500.00
+        };
+        
+
+        const tradeInCheck = document.getElementById('tradeInCheck');
+        const tradeInField = document.getElementById('tradeInField');
+        const oldValueInput = document.getElementById('oldValue');
+        const resultContainer = document.getElementById('resultContainer');
+
+        // Lógica para mostrar/esconder o campo de valor antigo
+        tradeInCheck.addEventListener('change', function() {
+            if(this.checked) {
+                tradeInField.style.display = 'block';
+                oldValueInput.focus();
+            } else {
+                tradeInField.style.display = 'none';
+                oldValueInput.value = '';
+            }
+        });
+
+        // Função de formatação para Real Brasileiro
+        function formatCurrency(value) {
+            return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+
+        // Função Principal de Cálculo
+        function calculate() {
+            const modelSelect = document.getElementById('modelSelect').value;
+            
+            // Validação simples
+            if (!modelSelect) {
+                alert("Por favor, selecione um modelo.");
+                return;
+            }
+
+            // Obter valores
+            let basePrice = prices[modelSelect];
+            let tradeValue = 0;
+            let tradeinBonus = tradein_bonus[modelSelect];
+
+            if (tradeInCheck.checked) {
+                tradeValue = parseFloat(oldValueInput.value);
+                if (isNaN(tradeValue)) tradeValue = 0;
+            }
+
+            // Calcular
+            let finalPrice = basePrice - tradeValue - tradeinBonus;
+            if (finalPrice < 0) finalPrice = 0; // Evitar valores negativos
+
+            // Atualizar UI
+            document.getElementById('displayPrice').innerText = formatCurrency(finalPrice);
+            document.getElementById('detailBase').innerText = formatCurrency(basePrice);
+            document.getElementById('detailTrade').innerText = "- " + formatCurrency(tradeValue);
+
+            // Mostrar linha de desconto apenas se houver troca
+            document.getElementById('detailTradeRow').style.display = tradeInCheck.checked ? 'flex' : 'none';
+
+            // Comportamento Mobile vs Desktop
+            // No mobile: display:none -> display:flex
+            // No desktop: opacidade muda e remove o texto de placeholder
+            resultContainer.style.display = 'flex'; 
+            resultContainer.classList.add('active');
+            
+            // Scroll suave para o resultado no mobile
+            if (window.innerWidth < 768) {
+                resultContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function descricaoValores() {
+
+            const modelSelect = document.getElementById('modelSelect').value;
+            
+            // Validação simples
+            if (!modelSelect) {
+                alert("Por favor, selecione um modelo.");
+                return;
+            }
+
+            let fullPrice = full_prices[modelSelect];
+            let memoriaBonus = memoria_bonus[modelSelect];
+            let tradeValue = 0;
+            let tradeinBonus = tradein_bonus[modelSelect];
+            let rnplBonus = rnpl_bonus[modelSelect];
+
+             alert("Descrição dos Valores:\n\n" +
+                  "Preço lançamento do Produto: " + formatCurrency(fullPrice) + "\n" +
+                  "Desconto de dobro de memória: " + formatCurrency(memoriaBonus) + "\n" +
+                  "Bônus de RNPL: " + formatCurrency(rnplBonus) + "\n" +
+                  "Bônus de Troca: " + formatCurrency(tradeinBonus) + " (valor fixo de desconto para cada modelo, aplicado apenas se o cliente fizer a troca).");
+
+        }
+    </script>
+</body>
+</html>
