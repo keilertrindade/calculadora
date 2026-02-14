@@ -386,7 +386,7 @@
             document.getElementById('fullPrice').innerText = formatCurrency(finalPrice - 299);
 
             // Mostrar linha de desconto apenas se houver troca
-            document.getElementById('detailTradeRow').style.display = tradeInCheck.checked ? 'flex' : 'none';
+            document.getElementById('detailTradeRow').style.display = tradeInCheck.checked && tradeValue > 0 ? 'flex' : 'none';
 
             // Comportamento Mobile vs Desktop
             // No mobile: display:none -> display:flex
@@ -420,7 +420,7 @@
                   "Preço lançamento do Produto: " + formatCurrency(fullPrice) + "\n" +
                   "Desconto de dobro de memória: " + formatCurrency(memoriaBonus) + "\n" +
                   "Bônus de RNPL: " + formatCurrency(rnplBonus) + "\n" +
-                  "Bônus de Troca: " + formatCurrency(tradeinBonus) + " (valor fixo de desconto para cada modelo, aplicado apenas se o cliente fizer a troca).");
+                  "Bônus de Troca: " + formatCurrency(tradeinBonus) + " (Aplicado apenas se o cliente deixar aparelho na troca).");
 
         }
     </script>
