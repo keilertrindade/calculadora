@@ -178,21 +178,21 @@
         }
 
         .btn-green {
-    display: block;          /* Faz ocupar a linha toda, igual ao botão */
-    width: 100%;             /* Largura total */
-    padding: 14px;           /* Mesma altura do outro botão */
-    background-color: #16a34a; /* Verde (Green-600) */
-    color: white;
-    text-align: center;
-    border-radius: 6px;
-    text-decoration: none;   /* Remove o sublinhado de link */
-    font-weight: 600;
-    font-size: 1rem;
-    margin-top: 10px;        /* Espaçamento do item de cima */
-    transition: background-color 0.2s;
-    border: none;
-    cursor: pointer;
-}
+            display: block;          /* Faz ocupar a linha toda, igual ao botão */
+            width: 100%;             /* Largura total */
+            padding: 14px;           /* Mesma altura do outro botão */
+            background-color: #16a34a; /* Verde (Green-600) */
+            color: white;
+            text-align: center;
+            border-radius: 6px;
+            text-decoration: none;   /* Remove o sublinhado de link */
+            font-weight: 600;
+            font-size: 1rem;
+            margin-top: 10px;        /* Espaçamento do item de cima */
+            transition: background-color 0.2s;
+            border: none;
+            cursor: pointer;
+        }
 
 .btn-green:hover {
     background-color: #15803d; /* Verde mais escuro ao passar o mouse */
@@ -260,7 +260,7 @@
                 </div>
 
                 <button onclick="calculate()">Calcular Valor Final</button>
-                <button onclick="descricaoValores()">Descrição dos Valores</button>
+                <button onclick="describe()">Descrição dos Valores</button>
                 <a href="https://sav.wooza.com.br/samsung/modules-dashboard" target="_blank" class="btn-green">
                     Acessar SAV
                 </a>
@@ -268,21 +268,21 @@
             </div>
 
             <div class="result-column" id="resultContainer">
-                <div class="result-title">Valor Final a Pagar</div>
+                <div class="result-title">Valor do produto após descontos</div>
                 <div class="final-price" id="displayPrice">R$ 0,00</div>
                 
                 <div class="details">
                     <div class="detail-row">
-                        <span>Preço do Produto:</span>
+                        <span>Preço do Produto no lançamento:</span>
                         <span id="detailBase">R$ 0,00</span>
                     </div>
                     <div class="detail-row" id="detailTradeRow" style="color: #dc2626;">
-                        <span>Desconto (Troca):</span>
+                        <span>Desconto (TradeIn + Bonus):</span>
                         <span id="detailTrade">- R$ 0,00</span>
                     </div>
                     <div class="detail-row" id="detailTradeRow" style="color: #5d26dc;">
-                        <span>Descrição valores:</span>
-                        <span id="detailTrade">- R$ 0,00</span>
+                        <span>Valor a pagar na retirada do produto:</span>
+                        <span id="fullPrice">- R$ 0,00</span>
                     </div>
                     
                 </div>
@@ -353,6 +353,7 @@
         // Função Principal de Cálculo
         function calculate() {
             const modelSelect = document.getElementById('modelSelect').value;
+            let finalPrice = 0;
             
             // Validação simples
             if (!modelSelect) {
@@ -364,6 +365,7 @@
             let basePrice = prices[modelSelect];
             let tradeValue = 0;
             let tradeinBonus = tradein_bonus[modelSelect];
+            let fullPrice = full_prices[modelSelect];
 
             if (tradeInCheck.checked) {
                 tradeValue = parseFloat(oldValueInput.value);
@@ -371,13 +373,17 @@
             }
 
             // Calcular
-            let finalPrice = basePrice - tradeValue - tradeinBonus;
-            if (finalPrice < 0) finalPrice = 0; // Evitar valores negativos
+            
+            finalPrice = basePrice - tradeValue - tradeinBonus;
+
+            if (finalPrice < 0) finalPrice = 0;
+            if (tradeValue == 0) finalPrice = basePrice; 
 
             // Atualizar UI
             document.getElementById('displayPrice').innerText = formatCurrency(finalPrice);
-            document.getElementById('detailBase').innerText = formatCurrency(basePrice);
-            document.getElementById('detailTrade').innerText = "- " + formatCurrency(tradeValue);
+            document.getElementById('detailBase').innerText = formatCurrency(fullPrice);
+            document.getElementById('detailTrade').innerText = formatCurrency(tradeValue + tradeinBonus);
+            document.getElementById('fullPrice').innerText = formatCurrency(finalPrice - 299);
 
             // Mostrar linha de desconto apenas se houver troca
             document.getElementById('detailTradeRow').style.display = tradeInCheck.checked ? 'flex' : 'none';
@@ -394,7 +400,7 @@
             }
         }
 
-        function descricaoValores() {
+        function describe() {
 
             const modelSelect = document.getElementById('modelSelect').value;
             
