@@ -108,6 +108,12 @@
             border-color: var(--primary-color);
         }
 
+        select:disabled {
+            background-color: #e5e7eb;
+            cursor: not-allowed;
+            color: #6b7280;
+        }
+
         /* Checkbox Group */
         .checkbox-group {
             display: flex;
@@ -194,9 +200,9 @@
             cursor: pointer;
         }
 
-.btn-green:hover {
-    background-color: #15803d; /* Verde mais escuro ao passar o mouse */
-}
+        .btn-green:hover {
+            background-color: #15803d; /* Verde mais escuro ao passar o mouse */
+        }
 
         /* --- BREAKPOINT PARA DESKTOP --- */
         @media (min-width: 768px) {
@@ -249,6 +255,13 @@
                     </select>
                 </div>
 
+                <div>
+                    <label for="bundleSelect">Cliente tem interesse em bundle?</label>
+                    <select id="bundleSelect" disabled>
+                        <option value="" disabled selected>Selecione o modelo primeiro...</option>
+                    </select>
+                </div>
+
                 <div class="checkbox-group" onclick="document.getElementById('tradeInCheck').click()">
                     <input type="checkbox" id="tradeInCheck" onclick="event.stopPropagation()">
                     <label for="tradeInCheck" style="margin:0; cursor:pointer;">Cliente deixará outro aparelho na troca</label>
@@ -272,6 +285,10 @@
                 <div class="final-price" id="displayPrice">R$ 0,00</div>
                 
                 <div class="details">
+                    <div class="detail-row" id="detailBundleRow" style="color: #dc2626;">
+                        <span>Preço do Produto com bundle selecionado:</span>
+                        <span id="detailBundle">R$ 0,00</span>
+                    </div>
                     <div class="detail-row">
                         <span>Preço do Produto no lançamento:</span>
                         <span id="detailBase">R$ 0,00</span>
@@ -280,7 +297,7 @@
                         <span>Desconto (TradeIn + Bonus):</span>
                         <span id="detailTrade">- R$ 0,00</span>
                     </div>
-                    <div class="detail-row" id="detailTradeRow" style="color: #5d26dc;">
+                    <div class="detail-row" id="detailTradeRow2" style="color: #5d26dc;">
                         <span>Valor a pagar na retirada do produto:</span>
                         <span id="fullPrice">- R$ 0,00</span>
                     </div>
@@ -291,7 +308,6 @@
     </div>
 
     <script>
-        // TABELA DE PREÇOS (Configure aqui os valores reais)
         
         const full_prices = {
             'm1': 9099.00,
@@ -327,14 +343,68 @@
             'm3_512': 1500.00,
             'm3_1tb': 1500.00
         };
-        
 
+        const bundleOptions = {
+            'm1': [
+                { value: 0, text: 'Não' },
+                { value: 599.00, text: 'Buds 4' },
+                { value: 999.00, text: 'Buds 4 Pro' },
+                { value: 999.00, text: 'Watch 8' }
+            ],
+            'm2': [
+                { value: 0, text: 'Não' },
+                { value: 599.00, text: 'Buds 4' },
+                { value: 999.00, text: 'Buds 4 Pro' },
+                { value: 999.00, text: 'Watch 8' }
+            ],
+            'm3_512': [
+                { value: 0, text: 'Não' },
+                { value: 599.00, text: 'Buds 4' },
+                { value: 999.00, text: 'Buds 4 Pro' },
+                { value: 999.00, text: 'Watch 8' },
+                { value: 1499.00, text: 'Watch Classic' },
+                { value: 1899.00, text: 'Watch Ultra' }
+            ],
+            'm3_1tb': [
+                { value: 0, text: 'Não' },
+                { value: 599.00, text: 'Buds 4' },
+                { value: 999.00, text: 'Buds 4 Pro' },
+                { value: 999.00, text: 'Watch 8' },
+                { value: 1499.00, text: 'Watch Classic' },
+                { value: 1899.00, text: 'Watch Ultra' }
+            ]
+        };
+
+        const modelSelect = document.getElementById('modelSelect');
+        const bundleSelect = document.getElementById('bundleSelect');
         const tradeInCheck = document.getElementById('tradeInCheck');
         const tradeInField = document.getElementById('tradeInField');
         const oldValueInput = document.getElementById('oldValue');
         const resultContainer = document.getElementById('resultContainer');
 
-        // Lógica para mostrar/esconder o campo de valor antigo
+        // EventListener para popular o bundleSelect quando modelSelect mudar
+        modelSelect.addEventListener('change', function() {
+            const selectedModel = this.value;
+            
+            // Limpa as opções atuais
+            bundleSelect.innerHTML = '';
+            
+            if (bundleOptions[selectedModel]) {
+                bundleSelect.disabled = false;
+                
+                // Adiciona as novas opções
+                bundleOptions[selectedModel].forEach(option => {
+                    const newOption = document.createElement('option');
+                    newOption.value = option.value;
+                    newOption.textContent = option.text;
+                    bundleSelect.appendChild(newOption);
+                });
+            } else {
+                bundleSelect.disabled = true;
+                bundleSelect.innerHTML = '<option value="" disabled selected>Selecione o modelo primeiro...</option>';
+            }
+        });
+
         tradeInCheck.addEventListener('change', function() {
             if(this.checked) {
                 tradeInField.style.display = 'block';
@@ -352,20 +422,24 @@
 
         // Função Principal de Cálculo
         function calculate() {
-            const modelSelect = document.getElementById('modelSelect').value;
+            const modelSelectValue = document.getElementById('modelSelect').value;
+            //const bundleSelectValue = document.getElementById('bundleSelect').options[document.getElementById('bundleSelect').selectedIndex]?.value;
+            const bundleSelectValue = parseFloat(document.getElementById('bundleSelect').options[document.getElementById('bundleSelect').selectedIndex]?.value); // Garante que seja número, mesmo que seja 0 ou undefined
+            //alert("Bundle selecionado tem valor de: " + formatCurrency(bundleSelectValue ? parseFloat(bundleSelectValue) : 0));
+            
             let finalPrice = 0;
             
             // Validação simples
-            if (!modelSelect) {
+            if (!modelSelectValue) {
                 alert("Por favor, selecione um modelo.");
                 return;
             }
 
             // Obter valores
-            let basePrice = prices[modelSelect];
+            let basePrice = prices[modelSelectValue];
             let tradeValue = 0;
-            let tradeinBonus = tradein_bonus[modelSelect];
-            let fullPrice = full_prices[modelSelect];
+            let tradeinBonus = tradein_bonus[modelSelectValue];
+            let fullPrice = full_prices[modelSelectValue];
 
             if (tradeInCheck.checked) {
                 tradeValue = parseFloat(oldValueInput.value);
@@ -382,11 +456,16 @@
             // Atualizar UI
             document.getElementById('displayPrice').innerText = formatCurrency(finalPrice);
             document.getElementById('detailBase').innerText = formatCurrency(fullPrice);
+            document.getElementById('detailBundle').innerText = formatCurrency(bundleSelectValue + finalPrice);
             document.getElementById('detailTrade').innerText = formatCurrency(tradeValue + tradeinBonus);
-            document.getElementById('fullPrice').innerText = formatCurrency(finalPrice - 299);
+            document.getElementById('fullPrice').innerText = formatCurrency(finalPrice - 299 + bundleSelectValue);
+
+
+            
 
             // Mostrar linha de desconto apenas se houver troca
             document.getElementById('detailTradeRow').style.display = tradeInCheck.checked && tradeValue > 0 ? 'flex' : 'none';
+            document.getElementById('detailBundleRow').style.display = bundleSelectValue > 0 ? 'flex' : 'none';
 
             // Comportamento Mobile vs Desktop
             // No mobile: display:none -> display:flex
@@ -402,28 +481,29 @@
 
         function describe() {
 
-            const modelSelect = document.getElementById('modelSelect').value;
+            const modelSelectValue = document.getElementById('modelSelect').value;
+            const bundleSelectValue = document.getElementById('bundleSelect').options[document.getElementById('bundleSelect').selectedIndex]?.text || "Nenhum selecionado";
             
             // Validação simples
-            if (!modelSelect) {
+            if (!modelSelectValue) {
                 alert("Por favor, selecione um modelo.");
                 return;
             }
 
-            let fullPrice = full_prices[modelSelect];
-            let memoriaBonus = memoria_bonus[modelSelect];
+            let fullPrice = full_prices[modelSelectValue];
+            let memoriaBonus = memoria_bonus[modelSelectValue];
             let tradeValue = 0;
-            let tradeinBonus = tradein_bonus[modelSelect];
-            let rnplBonus = rnpl_bonus[modelSelect];
+            let tradeinBonus = tradein_bonus[modelSelectValue];
+            let rnplBonus = rnpl_bonus[modelSelectValue];
 
              alert("Descrição dos Valores:\n\n" +
                   "Preço lançamento do Produto: " + formatCurrency(fullPrice) + "\n" +
                   "Desconto de dobro de memória: " + formatCurrency(memoriaBonus) + "\n" +
                   "Bônus de RNPL: " + formatCurrency(rnplBonus) + "\n" +
-                  "Bônus de Troca: " + formatCurrency(tradeinBonus) + " (Aplicado apenas se o cliente deixar aparelho na troca).");
+                  "Bônus de Troca: " + formatCurrency(tradeinBonus) + " (Aplicado apenas se o cliente deixar aparelho na troca).\n\n" +
+                  "Bundle Selecionado: " + bundleSelectValue);
 
         }
     </script>
 </body>
-
 </html>
