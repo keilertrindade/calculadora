@@ -281,16 +281,16 @@
             </div>
 
             <div class="result-column" id="resultContainer">
-                <div class="result-title">Valor do produto após descontos</div>
+                <div class="result-title">Valor final do produto com bundle selecionado:</div>
                 <div class="final-price" id="displayPrice">R$ 0,00</div>
                 
                 <div class="details">
                     <div class="detail-row" id="detailBundleRow" style="color: #dc2626;">
-                        <span>Preço do Produto com bundle selecionado:</span>
+                        <span>Preço final do smartphone:</span>
                         <span id="detailBundle">R$ 0,00</span>
                     </div>
                     <div class="detail-row">
-                        <span>Preço do Produto no lançamento:</span>
+                        <span>Preço do smartphone no lançamento:</span>
                         <span id="detailBase">R$ 0,00</span>
                     </div>
                     <div class="detail-row" id="detailTradeRow" style="color: #dc2626;">
@@ -301,8 +301,32 @@
                         <span>Valor a pagar na retirada do produto:</span>
                         <span id="fullPrice">- R$ 0,00</span>
                     </div>
-                    
                 </div>
+
+                <div class="details">
+                    <div style="font-weight: 600; color: var(--text-color); margin-bottom: 10px; text-align: left;">Valores Samsung Care+</div>
+                    <div class="detail-row">
+                        <span>Garantia Extendida:</span>
+                        <span>R$ 629,00</span>
+                    </div>
+                    <div class="detail-row">
+                        <span>Danos Acidentais:</span>
+                        <span>R$ 799,00</span>
+                    </div>
+                    <div class="detail-row">
+                        <span>Furto Qualificado e Roubo:</span>
+                        <span>R$ 949,00</span>
+                    </div>
+                    <div class="detail-row">
+                        <span>Seguro Combo:</span>
+                        <span>R$ 1.199,00</span>
+                    </div>
+                    <div class="detail-row">
+                        <span>New Galaxy Club:</span>
+                        <span>R$ 1.799,00</span>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -346,19 +370,19 @@
 
         const bundleOptions = {
             'm1': [
-                { value: 0, text: 'Não' },
+                { value: 0, text: 'Nenhum' },
                 { value: 599.00, text: 'Buds 4' },
                 { value: 999.00, text: 'Buds 4 Pro' },
                 { value: 999.00, text: 'Watch 8' }
             ],
             'm2': [
-                { value: 0, text: 'Não' },
+                { value: 0, text: 'Nenhum' },
                 { value: 599.00, text: 'Buds 4' },
                 { value: 999.00, text: 'Buds 4 Pro' },
                 { value: 999.00, text: 'Watch 8' }
             ],
             'm3_512': [
-                { value: 0, text: 'Não' },
+                { value: 0, text: 'Nenhum' },
                 { value: 599.00, text: 'Buds 4' },
                 { value: 999.00, text: 'Buds 4 Pro' },
                 { value: 999.00, text: 'Watch 8' },
@@ -366,7 +390,7 @@
                 { value: 1899.00, text: 'Watch Ultra' }
             ],
             'm3_1tb': [
-                { value: 0, text: 'Não' },
+                { value: 0, text: 'Nenhum' },
                 { value: 599.00, text: 'Buds 4' },
                 { value: 999.00, text: 'Buds 4 Pro' },
                 { value: 999.00, text: 'Watch 8' },
@@ -423,9 +447,7 @@
         // Função Principal de Cálculo
         function calculate() {
             const modelSelectValue = document.getElementById('modelSelect').value;
-            //const bundleSelectValue = document.getElementById('bundleSelect').options[document.getElementById('bundleSelect').selectedIndex]?.value;
-            const bundleSelectValue = parseFloat(document.getElementById('bundleSelect').options[document.getElementById('bundleSelect').selectedIndex]?.value); // Garante que seja número, mesmo que seja 0 ou undefined
-            //alert("Bundle selecionado tem valor de: " + formatCurrency(bundleSelectValue ? parseFloat(bundleSelectValue) : 0));
+            const bundleSelectValue = parseFloat(document.getElementById('bundleSelect').options[document.getElementById('bundleSelect').selectedIndex]?.value); 
             
             let finalPrice = 0;
             
@@ -454,22 +476,17 @@
             if (tradeValue == 0) finalPrice = basePrice; 
 
             // Atualizar UI
-            document.getElementById('displayPrice').innerText = formatCurrency(finalPrice);
+            document.getElementById('displayPrice').innerText = formatCurrency(finalPrice + bundleSelectValue);
             document.getElementById('detailBase').innerText = formatCurrency(fullPrice);
-            document.getElementById('detailBundle').innerText = formatCurrency(bundleSelectValue + finalPrice);
+            document.getElementById('detailBundle').innerText = formatCurrency(finalPrice);
             document.getElementById('detailTrade').innerText = formatCurrency(tradeValue + tradeinBonus);
             document.getElementById('fullPrice').innerText = formatCurrency(finalPrice - 299 + bundleSelectValue);
-
-
-            
 
             // Mostrar linha de desconto apenas se houver troca
             document.getElementById('detailTradeRow').style.display = tradeInCheck.checked && tradeValue > 0 ? 'flex' : 'none';
             document.getElementById('detailBundleRow').style.display = bundleSelectValue > 0 ? 'flex' : 'none';
 
             // Comportamento Mobile vs Desktop
-            // No mobile: display:none -> display:flex
-            // No desktop: opacidade muda e remove o texto de placeholder
             resultContainer.style.display = 'flex'; 
             resultContainer.classList.add('active');
             
@@ -482,8 +499,9 @@
         function describe() {
 
             const modelSelectValue = document.getElementById('modelSelect').value;
-            const bundleSelectValue = document.getElementById('bundleSelect').options[document.getElementById('bundleSelect').selectedIndex]?.text || "Nenhum selecionado";
-            
+            const bundleSelectName = document.getElementById('bundleSelect').options[document.getElementById('bundleSelect').selectedIndex]?.text || "Nenhum selecionado";
+            const bundleSelectValue = parseFloat(document.getElementById('bundleSelect').options[document.getElementById('bundleSelect').selectedIndex]?.value); 
+
             // Validação simples
             if (!modelSelectValue) {
                 alert("Por favor, selecione um modelo.");
@@ -500,8 +518,8 @@
                   "Preço lançamento do Produto: " + formatCurrency(fullPrice) + "\n" +
                   "Desconto de dobro de memória: " + formatCurrency(memoriaBonus) + "\n" +
                   "Bônus de RNPL: " + formatCurrency(rnplBonus) + "\n" +
-                  "Bônus de Troca: " + formatCurrency(tradeinBonus) + " (Aplicado apenas se o cliente deixar aparelho na troca).\n\n" +
-                  "Bundle Selecionado: " + bundleSelectValue);
+                  "Bônus de Troca: " + formatCurrency(tradeinBonus) + " (Aplicado apenas com aparelho na troca).\n" +
+                  "Bundle: " + bundleSelectName + " por " + formatCurrency(bundleSelectValue));
 
         }
     </script>
