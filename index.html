@@ -72,7 +72,7 @@
             gap: 15px;
         }
 
-        /* Coluna de Resultados (A tal div lateral/oculta) */
+        /* Coluna de Resultados */
         .result-column {
             flex: 1;
             background-color: #f8fafc;
@@ -129,7 +129,6 @@
             cursor: pointer;
         }
 
-        /* Campo de valor de troca (escondido se checkbox não marcado) */
         #tradeInField {
             display: none;
             animation: fadeIn 0.3s;
@@ -184,35 +183,110 @@
         }
 
         .btn-green {
-            display: block;          /* Faz ocupar a linha toda, igual ao botão */
-            width: 100%;             /* Largura total */
-            padding: 14px;           /* Mesma altura do outro botão */
-            background-color: #16a34a; /* Verde (Green-600) */
+            display: block;          
+            width: 100%;             
+            padding: 14px;           
+            background-color: #16a34a; 
             color: white;
             text-align: center;
             border-radius: 6px;
-            text-decoration: none;   /* Remove o sublinhado de link */
+            text-decoration: none;   
             font-weight: 600;
             font-size: 1rem;
-            margin-top: 10px;        /* Espaçamento do item de cima */
+            margin-top: 10px;        
             transition: background-color 0.2s;
             border: none;
             cursor: pointer;
         }
 
         .btn-green:hover {
-            background-color: #15803d; /* Verde mais escuro ao passar o mouse */
+            background-color: #15803d; 
+        }
+
+        /* Estilos do Modal e Link Clicável */
+        .clickable-text {
+            color: var(--primary-color);
+            text-decoration: underline;
+            cursor: pointer;
+            font-weight: 600;
+        }
+        
+        .clickable-text:hover {
+            color: var(--primary-hover);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: none; /* Oculto por padrão */
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            backdrop-filter: blur(2px);
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 450px;
+            width: 90%;
+            position: relative;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .close-btn:hover {
+            color: #0f172a;
+        }
+
+        .modal-content h2 {
+            color: var(--primary-color);
+            font-size: 1.4rem;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .modal-content ul {
+            text-align: left;
+            padding-left: 20px;
+            color: #334155;
+            line-height: 1.6;
+        }
+
+        .modal-content li {
+            margin-bottom: 10px;
         }
 
         /* --- BREAKPOINT PARA DESKTOP --- */
         @media (min-width: 768px) {
             .calculator-body {
-                flex-direction: row; /* Coloca lado a lado */
+                flex-direction: row; 
             }
 
             .result-column {
-                display: flex; /* Desktop: Sempre visível como placeholder ou com resultado */
-                opacity: 0.5; /* Opacidade baixa se não tiver resultado ainda */
+                display: flex; 
+                opacity: 0.5; 
                 justify-content: center;
             }
 
@@ -222,7 +296,6 @@
                 border-color: #86efac;
             }
             
-            /* Ajuste visual quando inativo no desktop */
             .result-column:not(.active) .final-price,
             .result-column:not(.active) .details {
                 display: none;
@@ -322,12 +395,26 @@
                         <span>R$ 1.199,00</span>
                     </div>
                     <div class="detail-row">
-                        <span>New Galaxy Club:</span>
+                        <span class="clickable-text" onclick="openModal()">New Galaxy Club ℹ️:</span>
                         <span>R$ 1.799,00</span>
                     </div>
                 </div>
 
             </div>
+        </div>
+    </div>
+
+    <div id="benefitsModal" class="modal-overlay" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2>Benefícios New Galaxy Club</h2>
+            <ul>
+                <li>Em construção.</li>
+               <!-- <li>Proteção completa com o Samsung Care+ (Danos e Roubo/Furto).</li>
+                <li>Prioridade no recebimento do produto no lançamento.</li>
+                <li>Atendimento Concierge e suporte técnico diferenciado.</li>
+                <li>Película protetora aplicada gratuitamente.</li> -->
+            </ul>
         </div>
     </div>
 
@@ -405,6 +492,16 @@
         const tradeInField = document.getElementById('tradeInField');
         const oldValueInput = document.getElementById('oldValue');
         const resultContainer = document.getElementById('resultContainer');
+
+        // Funções do Modal
+        function openModal() {
+            document.getElementById('benefitsModal').style.display = 'flex';
+        }
+
+        function closeModal(event) {
+            // Se o evento foi disparado diretamente na overlay ou no botão de fechar, esconde o modal
+            document.getElementById('benefitsModal').style.display = 'none';
+        }
 
         // EventListener para popular o bundleSelect quando modelSelect mudar
         modelSelect.addEventListener('change', function() {
